@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+
+    <title>Traitcapture Torrent Repository</title>
+  </head>
+  <body>
+    <input type="text" class="form-control" id="lookup" placeholder="Filter torrents">
+
+<table id="table" class="table">
+  <thead>
+    <tr>
+      <th scope="col">Name</th>
+      <th scope="col">URL</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+
+  </tbody>
+</table>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+
+    <script>
+
+    var Data;
+
+
+    function MakeTable(mData)
+    {
+        $('#table tbody').html("");
+        console.log(mData);
+        for (var i = 0; i<mData.length;i++)
+        {
+            var data = mData[i];
+            var out = '<tr><td>';
+            out += data.name;
+            out += '</td><td>';
+            out += '<a href="/torrents/' + data.name + '">Download Torrent</a>';
+            out += '</td><td>';
+            out += '<a href="' + data.Magnet + '">Magnet</a>';
+            out += '</td></tr>';
+            $('#table tbody').append(out);
+        }
+    }
+
+    function Find(toFind)
+    {
+
+        var Out = [];
+
+        var booop = 0;
+
+        for(var i = 0; i < Data.length; i++){
+
+        var boop = Data[i];
+
+        if(boop.name.includes(toFind))
+        {
+            Out[booop] = Data[i];
+            booop++;
+        }
+
+        }
+
+        return Out;
+
+    }
+
+    $( document ).ready(function() {
+        $.getJSON( "getfiles", function( data ) {
+            Data = data;
+            MakeTable(Data);
+        });
+        $("#lookup").bind("change paste keyup", function() {
+            if($(this).val() == "")
+            {
+                MakeTable(Data);
+            }
+            else
+            {
+                MakeTable(Find($(this).val()));
+            }
+
+});
+
+    });
+
+
+
+    </script>
+
+  </body>
+</html>
