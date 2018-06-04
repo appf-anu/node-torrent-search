@@ -28,7 +28,7 @@ const getFiles = dir => {
         if (!fs.existsSync(dir+"/"+cat+"/"+t+".magnet")){
           console.log(dir+"/"+cat+"/"+t)
           let mag = getMagnet(dir+"/"+cat+"/"+t);
-          fs.writeFile(dir+"/"+cat+"/"+t+".magnet", mag, function(err) {
+          fs.writeFileSync(dir+"/"+cat+"/"+t+".magnet", mag, function(err) {
               if(err) {
                   return console.log(err);
               }
