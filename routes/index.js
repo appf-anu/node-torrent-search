@@ -1,38 +1,54 @@
-var express = require('express');
-var router = express.Router();
-var routeCache = require('route-cache');
-var parseTorrent = require('parse-torrent');
-var fs = require('fs');
+const express = require('express');
+const router = express.Router();
+const routeCache = require('route-cache');
+const parseTorrent = require('parse-torrent');
+const fs = require('fs');
+const path = require('path');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
   res.render('index');
 });
 
-router.get('/getfiles', routeCache.cacheSeconds(86400), function(req, res, next) {
-  var torrents = [];
-  fs.readdir('./public/torrents', function(err, items) {
+const getMagnet = (path) =>  {
+  let torrent = parseTorrent(fs.readFileSync(path));
+  return parseTorrent.toMagnetURI(torrent);
+}
 
-    if (err) {
-      res.json(err);
-    }
+const getFiles = dir => {
+  let a = {};
+  fs.readdirSync(dir).forEach(
+    cat=>{
 
-    for (var i = 0; i < items.length; i++) {
-      var FileName = items[i];
-      if (FileName.includes('.torrent')) {
-        let torrent = parseTorrent(fs.readFileSync('./public/torrents/' + FileName))
-        let magnetUri = parseTorrent.toMagnetURI(torrent);
+      torrents = fs.readdirSync(dir+"/"+cat).filter((v)=>v.endsWith(".torrent"));
+      a[cat] = [];
 
-        torrents[i] = {
-          'name': FileName,
-          'Magnet': magnetUri
-        };
-      }
+      torrents.forEach(t=>{
+        let v = {name: t}
+        if (!fs.existsSync(dir+"/"+cat+"/"+t+".magnet")){
+          console.log(dir+"/"+cat+"/"+t)
+          let mag = getMagnet(dir+"/"+cat+"/"+t);
+          fs.writeFile(dir+"/"+cat+"/"+t+".magnet", mag, function(err) {
+              if(err) {
+                  return console.log(err);
+              }
+              console.log("The file was saved!");
+          });
+          v.magnet = mag
+        }else{
+          v.magnet = fs.readFileSync(dir+"/"+cat+"/"+t+".magnet", "utf8")
+        }
+        a[cat].push(v)
+      })
+    });
+  return a;
+}
 
-    }
+router.get('/getfiles',
+  (req, res, next) => {
+    var torrents = {};
+    var torrents = getFiles("./public/torrents")
     res.json(torrents);
   });
-
-});
 
 module.exports = router;

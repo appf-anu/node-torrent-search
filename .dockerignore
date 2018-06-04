@@ -1,0 +1,7 @@
+./public/torrents/*
+.git
+.gitignore
+.github
+.gitattributes
+READMETEMPLATE.md
+README.md

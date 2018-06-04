@@ -12,6 +12,8 @@
 
 <body>
   <div class="container-fluid">
+    <select class="custom-select" id="categories">
+    </select>
     <input type="text" class="form-control" id="lookup" placeholder="Filter torrents">
     <br>
     <div class="table-responsive-sm">
@@ -41,7 +43,7 @@
     var Data;
 
 
-    function MakeTable(mData) {
+    function MakeTable(mData, cat) {
       $('#table tbody').html("");
       console.log(mData);
       for (var i = 0; i < mData.length; i++) {
@@ -51,28 +53,27 @@
         out += '</td><td>';
         out += '<a href="/torrents/' + data.name + '">Download Torrent</a>';
         out += '</td><td>';
-        out += '<a href="' + data.Magnet + '">Magnet</a>';
+        out += '<a href="'+ data.magnet + '">Magnet</a>';
         out += '</td></tr>';
         $('#table tbody').append(out);
       }
       $(".spinner").remove();
     }
 
-    function Find(toFind) {
+    function Find(toFind, inWhich) {
       toFind = toFind.toLowerCase();
       var Out = [];
 
       var booop = 0;
 
-      for (var i = 0; i < Data.length; i++) {
+      for (var i = 0; i < inWhich.length; i++) {
 
-        var boop = Data[i];
+        var boop = inWhich[i];
 
         if (boop.name.toLowerCase().includes(toFind)) {
-          Out[booop] = Data[i];
+          Out[booop] = inWhich[i];
           booop++;
         }
-
       }
 
       return Out;
@@ -82,13 +83,23 @@
     $(document).ready(function() {
       $.getJSON("getfiles", function(data) {
         Data = data;
-        MakeTable(Data);
+        dstring = Object.keys(data).map((v) => '<option value="'+v+'">'+v+'</option>').join("");
+
+        $("#categories").html(dstring);
+        $("#categories").change(function(e){
+          let cat = e.target.value;
+          MakeTable(Data[cat], cat);
+        });
+        let cat = $("#categories").val();
+        MakeTable(Data[cat], cat);
       });
       $("#lookup").bind("change paste keyup", function() {
+        let cat = $("#categories").val();
+        let d = Data[cat];
         if ($(this).val() == "") {
-          MakeTable(Data);
+          MakeTable(d, cat);
         } else {
-          MakeTable(Find($(this).val()));
+          MakeTable(Find($(this).val(), d), cat);
         }
 
       });
