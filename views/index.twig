@@ -60,23 +60,23 @@
       $(".spinner").remove();
     }
 
-    function Find(toFind, inWhich) {
+    function Find(toFind, inWhat) {
       toFind = toFind.toLowerCase();
-      var Out = [];
+      var output = [];
 
-      var booop = 0;
+      var outputIdex = 0;
 
-      for (var i = 0; i < inWhich.length; i++) {
+      for (var i = 0; i < inWhat.length; i++) {
 
-        var boop = inWhich[i];
+        var item = inWhat[i];
 
-        if (boop.name.toLowerCase().includes(toFind)) {
-          Out[booop] = inWhich[i];
-          booop++;
+        if (item.name.toLowerCase().includes(toFind)) {
+          output[outputIdex] = item;
+          outputIdex++;
         }
       }
 
-      return Out;
+      return output;
 
     }
 
