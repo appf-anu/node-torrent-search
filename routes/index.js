@@ -10,21 +10,28 @@ router.get('/', function(req, res, next) {
   res.render('index');
 });
 
+
+router.get('/getfiles', function (req, res, next) {
+    var torrents = getFiles("./public/torrents")
+    res.json(torrents);
+});
+
+
 const getMagnet = (path) =>  {
   let torrent = parseTorrent(fs.readFileSync(path));
   return parseTorrent.toMagnetURI(torrent);
 }
 
 const getFiles = dir => {
-  let a = {};
+  let output = {};
   fs.readdirSync(dir).forEach(
     cat=>{
 
       torrents = fs.readdirSync(dir+"/"+cat).filter((v)=>v.endsWith(".torrent"));
-      a[cat] = [];
+      output[cat] = [];
 
       torrents.forEach(t=>{
-        let v = {name: t}
+        let torrentData = {name: t}
         if (!fs.existsSync(dir+"/"+cat+"/"+t+".magnet")){
           console.log(dir+"/"+cat+"/"+t)
           let mag = getMagnet(dir+"/"+cat+"/"+t);
@@ -34,21 +41,15 @@ const getFiles = dir => {
               }
               console.log("The file was saved!");
           });
-          v.magnet = mag
+          torrentData.magnet = mag
         }else{
-          v.magnet = fs.readFileSync(dir+"/"+cat+"/"+t+".magnet", "utf8")
+          torrentData.magnet = fs.readFileSync(dir+"/"+cat+"/"+t+".magnet", "utf8")
         }
-        a[cat].push(v)
+        output[cat].push(v)
       })
     });
-  return a;
+  return output;
 }
 
-router.get('/getfiles',
-  (req, res, next) => {
-    var torrents = {};
-    var torrents = getFiles("./public/torrents")
-    res.json(torrents);
-  });
 
 module.exports = router;
